@@ -15,12 +15,12 @@ std = [0.2023, 0.1994, 0.2010]
 # 为训练集定义数据增强和转换
 transform_train = transforms.Compose([
     # 随机调节亮度、对比度、饱和度和色相
-    transforms.ColorJitter(
-        brightness=0.2,
-        contrast=0.2,
-        saturation=0.2,
-        hue=0.1
-    ),
+    # transforms.ColorJitter(
+    #     brightness=0.2,
+    #     contrast=0.2,
+    #     saturation=0.2,
+    #     hue=0.1
+    # ),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize(mean, std)
@@ -48,10 +48,6 @@ test_loader = torch.utils.data.DataLoader(
 classes = ('plane', 'car', 'bird', 'cat', 'deer',
            'dog', 'frog', 'horse', 'ship', 'truck')
 
-# 3. 定义ResNet-50模型
-# 加载预训练的ResNet-50模型
-# pretrained=True 会下载在ImageNet上预训练的权重
-# 这里我们设置为False，从头开始训练，当然也可以设置为True进行微调
 model = resnet50(weights=None)
 
 
@@ -60,7 +56,7 @@ model.fc = nn.Linear(num_ftrs, 10)
 
 model = model.to(device)
 
-criterion = nn.CrossEntropyLoss()
+loss = nn.CrossEntropyLoss()
 
 # sgd里面设置智能冲量
 optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, nesterov=True, weight_decay=5e-4)
@@ -68,41 +64,6 @@ optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, nesterov=True, 
 # 间隔7个周期，依次将学历率乘0.1
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
 
-# 5. 训练模型
-def train(epoch):
-    print(f'\nEpoch: {epoch + 1}')
-    model.train()  # 设置模型为训练模式
-    running_loss = 0.0
-    correct = 0
-    total = 0
-    for batch_idx, (inputs, targets) in enumerate(train_loader):
-        # 将数据移动到指定设备
-        inputs, targets = inputs.to(device), targets.to(device)
-
-        # 梯度清零
-        optimizer.zero_grad()
-
-        # 前向传播
-        outputs = model(inputs)
-        
-        # 计算损失
-        loss = criterion(outputs, targets)
-        
-        # 反向传播
-        loss.backward()
-        
-        # 更新权重
-        optimizer.step()
-
-        running_loss += loss.item()
-        _, predicted = outputs.max(1)
-        total += targets.size(0)
-        correct += predicted.eq(targets).sum().item()
-
-        if (batch_idx + 1) % 100 == 0:
-            print(f'  Batch [{batch_idx + 1}/{len(train_loader)}] | ' 
-                  f'Loss: {running_loss / (batch_idx + 1):.3f} | ' 
-                  f'Acc: {100. * correct / total:.3f}% ({correct}/{total})')
 
 def test():
     model.eval()
@@ -113,9 +74,9 @@ def test():
         for inputs, targets in test_loader:
             inputs, targets = inputs.to(device), targets.to(device)
             outputs = model(inputs)
-            loss = criterion(outputs, targets)
+            l = loss(outputs, targets)
 
-            test_loss += loss.item()
+            test_loss += l.item()
             _, predicted = outputs.max(1)
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
@@ -126,10 +87,34 @@ def test():
 
 
 if __name__ == '__main__':
-    num_epochs = 100
+    num_epochs = 50
+
 
     for epoch in range(num_epochs):
-        train(epoch)
+        print(f'\nEpoch: {epoch + 1}')
+        model.train()
+        running_loss = 0.0
+        correct = 0
+        total = 0
+        for batch_idx, (inputs, targets) in enumerate(train_loader):
+            inputs, targets = inputs.to(device), targets.to(device)
+            optimizer.zero_grad()
+
+            outputs = model(inputs)
+            l = loss(outputs, targets)
+            l.backward()
+            optimizer.step()
+
+            running_loss += l.item()
+            _, predicted = outputs.max(1)
+            total += targets.size(0)
+            correct += predicted.eq(targets).sum().item()
+
+            if (batch_idx + 1) % 100 == 0:
+                print(f'  Batch [{batch_idx + 1}/{len(train_loader)}] | '
+                      f'Loss: {running_loss / (batch_idx + 1):.3f} | '
+                      f'Acc: {100. * correct / total:.3f}% ({correct}/{total})')
         test()
+        # 这个地方也更新一下epoch不然学习率调整不生效
         scheduler.step()
-    # torch.save(model.state_dict(), 'resnet50_cifar10.pth')
+    torch.save(model.state_dict(), 'resnet50_cifar10.pth')
