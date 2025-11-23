@@ -2,3 +2,6 @@
 .idea
 *.pth
 sample
+data
+logs
+multi_logs
