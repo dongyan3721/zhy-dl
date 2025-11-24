@@ -114,11 +114,11 @@ def test():
     with torch.no_grad():
         for batch_idx, (inputs, targets) in enumerate(test_loader):
             inputs, targets = inputs.to(device), targets.to(device)
-            outputs = model(inputs)
+            outputs = model(inputs) # batch，10
             l = loss(outputs, targets)
 
             test_loss += l.item()
-            _, predicted = outputs.max(1)
+            _, predicted = outputs.max(1) # batch,
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
 
