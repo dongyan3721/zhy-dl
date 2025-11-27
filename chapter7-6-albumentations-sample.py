@@ -1,4 +1,3 @@
-#%%
 import os
 import torch
 import torch.nn as nn
@@ -11,6 +10,7 @@ from matplotlib import pyplot as plt
 import albumentations as A
 import numpy as np
 import cv2
+from importlib import import_module
 import re
 
 
@@ -31,7 +31,6 @@ def visualize(image, mask, original_image=None, original_mask=None):
         ax[1, 1].imshow(mask)
         ax[1, 1].set_title('Transformed mask', fontsize=fontsize)
     plt.show()
-#%%
 
 path_img = './dataset/yu/ch7/00016.png'
 path_mask = './dataset/yu/ch7/00016_matte.png'
@@ -56,8 +55,6 @@ image_padded, mask_padded = data_augmented['image'], data_augmented['mask']
 # 可视化
 visualize(image_padded, mask_padded, original_image=image_rgb, original_mask=mask)
 
-#%%
-from importlib import import_module
 
 path_img = './dataset/yu/ch7/kun.png'
 
@@ -66,7 +63,7 @@ image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 mask = cv2.imread(path_mask, 0)
 
 
-A = import_module("albumentations")  # 虽复杂，但是是新知识点，保留作为学习资料
+A = import_module("albumentations")
 
 aug_list_cand = dir(A)
 aug_list_filtered = [aug for aug in aug_list_cand if not aug.startswith("IAA")]

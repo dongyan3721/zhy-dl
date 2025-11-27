@@ -92,6 +92,10 @@ if __name__ == "__main__":
     logger = set_logger("classification_cifar10_cnn", use_tb_logger=True)
     #
     # ============================= FusionClassifier =============================
+    """
+    直接对模型的输出按权重加权融合
+    
+    """
     model = FusionClassifier(
         estimator=LeNet5, n_estimators=n_estimators, cuda=True
     )
@@ -116,6 +120,13 @@ if __name__ == "__main__":
     )
 
     # ============================= VotingClassifier =============================
+    # 多个模型投票，如
+    """
+    模型1（ResNet）预测 0.7 概率属于A
+    模型2（MLP）预测 0.6 概率属于A
+    模型3（CNN）预测 0.9 概率属于A
+    这几个概率平均
+    """
     model = VotingClassifier(
         estimator=LeNet5, n_estimators=n_estimators, cuda=True
     )
@@ -140,6 +151,9 @@ if __name__ == "__main__":
     )
 
     # ============================= BaggingClassifier =============================
+    """"
+    用相同结构的模型训练多个副本，然后平均预测
+    """
     model = BaggingClassifier(
         estimator=LeNet5, n_estimators=n_estimators, cuda=True
     )
@@ -164,6 +178,10 @@ if __name__ == "__main__":
     )
 
     # ============================= GradientBoostingClassifier =============================
+    """"
+    一次训练一个模型，每个新模型都尝试纠正之前模型的错误
+    第二个学习器学习的是第一个学习器与目标检测的差距,第三个学习器学习的是第一个+第二个学习器结果之和与结果之间的差距,以此类推
+    """
     model = GradientBoostingClassifier(
         estimator=LeNet5, n_estimators=n_estimators, cuda=True
     )
@@ -194,6 +212,11 @@ if __name__ == "__main__":
     )
 
     # ============================= SnapshotEnsembleClassifier =============================
+    """
+    在一次训练中保存多个不同阶段的模型权重作为多个模型(只训练一次模型)
+    在训练过程中得到多个局部最优模型快照
+    将这些快照拼合为最终模型
+    """
     model = SnapshotEnsembleClassifier(
         estimator=LeNet5, n_estimators=n_estimators, cuda=True
     )
@@ -223,6 +246,7 @@ if __name__ == "__main__":
     )
 
     # ============================= SoftGradientBoostingClassifier =============================
+    # 平滑版的梯度提升集成法
     model = SoftGradientBoostingClassifier(
         estimator=LeNet5, n_estimators=n_estimators, cuda=True
     )

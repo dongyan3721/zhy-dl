@@ -42,8 +42,8 @@ if flag:
 
 
 # =================================== 多gpu 保存
-flag = 0
-# flag = 1
+# flag = 0
+flag = 1
 if flag:
 
     if torch.cuda.device_count() < 2:

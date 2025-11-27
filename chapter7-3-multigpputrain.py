@@ -31,6 +31,7 @@ if __name__ == "__main__":
 
     # model
     net = FooNet(neural_num=3, layers=3)
+    # 开启多 GPU 训练
     net = nn.DataParallel(net)
     net.to(device)
 

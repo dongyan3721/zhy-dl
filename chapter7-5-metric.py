@@ -12,9 +12,8 @@ class MyAccuracy(Metric):
 
     def update(self, preds: torch.Tensor, target: torch.Tensor):
         batch_size = target.size(0)
-        _, pred = preds.topk(1, 1, True, True)
-        pred = pred.t()
-        correct = pred.eq(target.reshape(1, -1).expand_as(pred))
+        _, pred = preds.max(dim=1)
+        correct = pred.eq(target.reshape(1, -1))
         self.correct += torch.sum(correct)
         self.total += batch_size
 
