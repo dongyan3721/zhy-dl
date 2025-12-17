@@ -26,6 +26,7 @@ class Translator(nn.Module):
         self.model = model
         self.model.eval()
 
+        # 非参数缓存
         self.register_buffer('init_seq', torch.LongTensor([[trg_bos_idx]]))
         self.register_buffer(
             'blank_seqs',
@@ -45,10 +46,12 @@ class Translator(nn.Module):
 
         enc_output, *_ = self.model.encoder(src_seq, src_mask)
         dec_output = self._model_decode(self.init_seq, enc_output, src_mask)
+        # dec_output: (batch_size, 1, vocab_size)
 
         best_k_probs, best_k_idx = dec_output[:, -1, :].topk(beam_size)  # 取前K个概率大的预测
 
         scores = torch.log(best_k_probs).view(beam_size)  # 取对数
+        # beam, max_len
         gen_seq = self.blank_seqs.clone().detach()
         gen_seq[:, 1] = best_k_idx[0]  # 取第一个候选结果
         enc_output = enc_output.repeat(beam_size, 1, 1)  # encoder重复beam_size次
@@ -81,12 +84,14 @@ class Translator(nn.Module):
         best_k2_probs, best_k2_idx = dec_output[:, -1, :].topk(beam_size)
 
         # Include the previous scores.
+        # beam, beam
         scores = torch.log(best_k2_probs).view(beam_size, -1) + scores.view(beam_size, 1)
 
         # Get the best k candidates from k^2 candidates.
         scores, best_k_idx_in_k2 = scores.view(-1).topk(beam_size)
 
         # Get the corresponding positions of the best k candidiates.
+        # 找到原来是跟着哪个的
         best_k_r_idxs, best_k_c_idxs = best_k_idx_in_k2 // beam_size, best_k_idx_in_k2 % beam_size
         best_k_idx = best_k2_idx[best_k_r_idxs, best_k_c_idxs]
 
@@ -113,17 +118,22 @@ class Translator(nn.Module):
             ans_idx = 0  # default
             for step in range(2, max_seq_len):  # decode up to max length
                 # step1: decoder一步推理
+                # beam, ml - step, vocab
                 dec_output = self._model_decode(gen_seq[:, :step], enc_output, src_mask)
                 # step2: beam search
                 gen_seq, scores = self._get_the_best_score_and_idx(gen_seq, dec_output, scores, step)
 
                 # step3: 判断是否停止
                 # -- locate the eos in the generated sequences
+                # eos: bool mat, (beam, max_l)
                 eos_locs = gen_seq == trg_eos_idx
                 # -- replace the eos with its position for the length penalty use
+                # 找出来真正的eos位置
                 seq_lens, _ = self.len_map.masked_fill(~eos_locs, max_seq_len).min(1)
                 # -- check if all beams contain eos
+                # 注意这里的向量维度求和
                 if (eos_locs.sum(1) > 0).sum(0).item() == beam_size:
+                    # 分数最大的beam index是返回
                     _, ans_idx = scores.div(seq_lens.float() ** alpha).max(0)
                     ans_idx = ans_idx.item()
                     break

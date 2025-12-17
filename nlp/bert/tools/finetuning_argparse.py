@@ -3,15 +3,15 @@ import argparse
 def get_argparse():
     parser = argparse.ArgumentParser()
     # Required parameters
-    parser.add_argument("--task_name", default=None, type=str, required=True,
+    parser.add_argument("--task_name", default='cluener', type=str,
                         help="The name of the task to train selected in the list: ")
-    parser.add_argument("--data_dir", default=None, type=str, required=True,
+    parser.add_argument("--data_dir", default='./dataset/cluener_public', type=str,
                         help="The input data dir. Should contain the training files for the CoNLL-2003 NER task.", )
-    parser.add_argument("--model_type", default=None, type=str, required=True,
+    parser.add_argument("--model_type", default='bert', type=str,
                         help="Model type selected in the list: ")
-    parser.add_argument("--model_name_or_path", default=None, type=str, required=True,
+    parser.add_argument("--model_name_or_path", default='./parameters', type=str,
                         help="Path to pre-trained model or shortcut name selected in the list: " )
-    parser.add_argument("--output_dir", default=None, type=str, required=True,
+    parser.add_argument("--output_dir", default='./output', type=str,
                         help="The output directory where the model predictions and checkpoints will be written.", )
 
     # Other parameters

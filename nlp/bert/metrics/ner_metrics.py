@@ -1,6 +1,6 @@
 import torch
 from collections import Counter
-from processors.utils_ner import get_entities
+from nlp.bert.processors.utils_ner import get_entities
 
 class SeqEntityScore(object):
     def __init__(self, id2label,markup='bios'):

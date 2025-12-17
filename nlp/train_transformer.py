@@ -309,7 +309,9 @@ def main():
         trg_vocab_len,
         src_pad_idx=train_set.word2index.PAD,
         trg_pad_idx=train_set.word2index.PAD,
+        # false
         trg_emb_prj_weight_sharing=opt.proj_share_weight,
+        # false
         emb_src_trg_weight_sharing=opt.embs_share_weight,
         d_k=opt.d_k,
         d_v=opt.d_v,

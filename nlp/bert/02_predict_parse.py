@@ -58,7 +58,7 @@ def extract_entities_from_lines(test_data_path, predictions_path):
 
 if __name__ == "__main__":
     # Test the function with the provided example
-    path_test_data = r"G:\deep_learning_data\cluener_public\test.json"
-    path_output_data = r"./outputsbert/test_prediction.json"
+    path_test_data = r"./dataset/cluener_public/test.json"
+    path_output_data = r"./outputbert/test_prediction.json"
 
     extract_entities_from_lines(path_test_data, path_output_data)

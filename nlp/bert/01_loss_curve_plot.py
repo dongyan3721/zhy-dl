@@ -1,7 +1,7 @@
 import re
 import matplotlib.pyplot as plt
 
-path_log = r"outputsbert/bert-cluener-2024-02-26_14-53-18.log"
+path_log = r"outputbert/bert-cluener-2025-12-17_14-29-27.log"
 # 正则表达式匹配一行中的step、train_loss和eval_loss
 pattern = re.compile(r'step:(\d+)\ttrain_loss: (\d+\.\d+)\teval_loss: (\d+\.\d+)')
 

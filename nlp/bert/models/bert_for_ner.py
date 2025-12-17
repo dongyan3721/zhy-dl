@@ -5,8 +5,8 @@ from .layers.crf import CRF
 from transformers import BertModel, BertPreTrainedModel
 from .layers.linears import PoolerEndLogits, PoolerStartLogits
 from torch.nn import CrossEntropyLoss
-from losses.focal_loss import FocalLoss
-from losses.label_smoothing import LabelSmoothingCrossEntropy
+from nlp.bert.losses.focal_loss import FocalLoss
+from nlp.bert.losses.label_smoothing import LabelSmoothingCrossEntropy
 
 
 class BertSoftmaxForNer(BertPreTrainedModel):
