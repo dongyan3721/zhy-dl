@@ -5,3 +5,7 @@ sample
 data
 logs
 multi_logs
+nlp/result
+nlp/bert/outputbert
+nlp/bert/parameters/*.safetensors
+nlp/bert/dataset/cluener_public/cached_soft*
