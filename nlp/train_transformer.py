@@ -228,8 +228,8 @@ def main():
     parser.add_argument('-train_path', default=None)   # bpe encoded data
     parser.add_argument('-val_path', default=None)     # bpe encoded data
 
-    parser.add_argument('-epoch', type=int, default=10)
-    parser.add_argument('-b', '--batch_size', type=int, default=2)
+    parser.add_argument('-epoch', type=int, default=50)
+    parser.add_argument('-b', '--batch_size', type=int, default=256)
 
     parser.add_argument('-d_model', type=int, default=512)
     parser.add_argument('-d_inner_hid', type=int, default=2048)
@@ -324,6 +324,10 @@ def main():
     optimizer = ScheduledOptim(
         optim.Adam(transformer.parameters(), betas=(0.9, 0.98), eps=1e-09),
         opt.lr_mul, opt.d_model, opt.n_warmup_steps)
+
+    from torch import nn
+
+    transformer = nn.DataParallel(transformer)
 
     train(transformer, train_loader, valid_loader, optimizer, device, opt)
 
